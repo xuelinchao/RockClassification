@@ -1,0 +1,57 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainFragment"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/results_layout"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:orientation="horizontal"
+        android:background="@drawable/shape_corner"
+        android:layout_alignParentTop="true">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/main_ejresults"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:scrollbars="vertical" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/main_sjresults"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="5"
+            android:scrollbars="vertical"/>
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_below="@id/results_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="5dp"
+        android:orientation="horizontal"
+        android:gravity="center">
+        <ImageView
+            android:id="@+id/rock_imgview"
+            android:src="@mipmap/rock"
+            android:background="@mipmap/image"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:contentDescription="@string/todo"/>
+    </LinearLayout>
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/select_img"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        app:srcCompat="@android:drawable/ic_input_add" />
+
+</RelativeLayout>

@@ -1,6 +1,19 @@
 <resources>
     <string name="app_name">RockClassification</string>
-    <string name="title_home">Home</string>
-    <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
+    <string name="title_home">主页</string>
+    <string name="title_notebook">手册</string>
+    <string name="title_notifications">通知</string>
+    <string name="description_info">Info</string>
+    <string name="request_permission">This sample needs camera permission.</string>
+    <string name="camera_error">This device doesn\'t support Camera2 API.</string>
+
+    <string name="menu_search">搜索</string>
+    <string name="menu_camera">相机</string>
+
+    <string name="menu_refresh">刷新</string>
+    <string name="menu_settings">设置</string>
+    <string name="todo">TODO</string>
+    <string name="title">title</string>
+    <string name="confidence">confidence</string>
+
 </resources>
