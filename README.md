@@ -1,5 +1,5 @@
 # RockClassification
-Rock Classification
+利用深度学习模型对岩石图像进行分类
 
 初步实现两个主要功能
 1. 从系统相册选择图片识别
