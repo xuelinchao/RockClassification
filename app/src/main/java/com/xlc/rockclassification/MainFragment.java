@@ -1,6 +1,9 @@
 package com.xlc.rockclassification;
 
+import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.ThumbnailUtils;
@@ -9,12 +12,14 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,17 +28,16 @@ import android.widget.Toast;
 
 import com.xlc.rockclassification.classify.Classifier;
 import com.xlc.rockclassification.classify.MyAdapter;
+import com.xlc.rockclassification.classify.env.Logger;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
-/**
- * A fragment with a Google +1 button.
- * Activities that contain this fragment must implement the
- * {@link MainFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link MainFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+
 public class MainFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -47,13 +51,10 @@ public class MainFragment extends Fragment {
     private HandlerThread handlerThread;
     private ImageView imageView;
 
-    //private OnFragmentInteractionListener mListener;
-
     private RecyclerView ejrecyclerView = null;
     private RecyclerView sjrecyclerView = null;
     private MyAdapter ejadapter = null;
     private MyAdapter sjadapter = null;
-    private boolean isFirst = true;
 
     private Classifier classifier;
 
@@ -89,13 +90,16 @@ public class MainFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_main, container, false);
         imageView = view.findViewById(R.id.rock_imgview);
 
         ejrecyclerView = view.findViewById(R.id.main_ejresults);
         sjrecyclerView = view.findViewById(R.id.main_sjresults);
+
+        final List<Classifier.Recognition> results = new ArrayList<>();
+        initResultsView(results);
 
         classifier = RockApplication.getClassifier(getContext());
 
@@ -104,18 +108,9 @@ public class MainFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 //Toast.makeText(getContext(),"test",Toast.LENGTH_SHORT).show();
-                runInBackground(new Runnable() {
-                    @Override
-                    public void run() {
-                        Bitmap croppedBitmap = ((BitmapDrawable)imageView.getDrawable()).getBitmap();
-                        croppedBitmap = ThumbnailUtils.extractThumbnail(croppedBitmap,RockApplication.INPUT_SIZE,RockApplication.INPUT_SIZE);
-                        final List<Classifier.Recognition> results = classifier.recognizeImage(croppedBitmap);
-                        Message msg = Message.obtain();
-                        msg.arg1 = 0;
-                        msg.obj = results;
-                        resultUiHandler.sendMessage(msg);
-                    }
-                });
+                Intent intent = new Intent(Intent.ACTION_PICK);
+                intent.setType("image/*");
+                startActivityForResult(intent, 1);
             }
         });
 
@@ -128,12 +123,27 @@ public class MainFragment extends Fragment {
             switch (msg.arg1) {
                 case 0:
                     List<Classifier.Recognition> results = (List<Classifier.Recognition>) msg.obj;
-                    if(isFirst){
-                        isFirst = false;
-                        initResultsView(results);
-                    }else {
-                        updateResultsView(results);
-                    }
+                    updateResultsView(results);
+                    break;
+                case 1:
+                    final Uri muri = (Uri) msg.obj;
+                    runInBackground(new Runnable() {
+                        @Override
+                        public void run() {
+                            Bitmap bitmap = null;
+                            try {
+                                bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), muri);
+                                Bitmap croppedBitmap = ThumbnailUtils.extractThumbnail(bitmap, RockApplication.INPUT_SIZE, RockApplication.INPUT_SIZE);
+                                final List<Classifier.Recognition> results = classifier.recognizeImage(croppedBitmap);
+                                Message msg = Message.obtain();
+                                msg.arg1 = 0;
+                                msg.obj = results;
+                                resultUiHandler.sendMessage(msg);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
                     break;
             }
             return false;
@@ -146,7 +156,7 @@ public class MainFragment extends Fragment {
         ejadapter = new MyAdapter(RockApplication.getErjResults(results), true);
         ejrecyclerView.setLayoutManager(ejlayoutmanager);
         ejrecyclerView.setAdapter(ejadapter);
-        DividerItemDecoration ejitemDecoration = new DividerItemDecoration(getContext(),ejlayoutmanager.getOrientation());
+        DividerItemDecoration ejitemDecoration = new DividerItemDecoration(getContext(), ejlayoutmanager.getOrientation());
         ejrecyclerView.addItemDecoration(ejitemDecoration);
 
 
@@ -154,24 +164,23 @@ public class MainFragment extends Fragment {
         sjadapter = new MyAdapter(results, false);
         sjrecyclerView.setLayoutManager(sjlayoutmanager);
         sjrecyclerView.setAdapter(sjadapter);
-        DividerItemDecoration sjitemDecoration = new DividerItemDecoration(getContext(),sjlayoutmanager.getOrientation());
+        DividerItemDecoration sjitemDecoration = new DividerItemDecoration(getContext(), sjlayoutmanager.getOrientation());
         sjrecyclerView.addItemDecoration(sjitemDecoration);
+    }
+
+    public void updateResultsView(final List<Classifier.Recognition> results) {
+        ejadapter.updateData(RockApplication.getErjResults(results));
+        sjadapter.updateData(results);
 
         ejadapter.setOnItemClickListener(new MyAdapter.OnItemClickListener() {
             @Override
             public void onClick(int position) {
                 String title = ejadapter.getCurrentTitle(position);
-                if(title!=null){
-                    sjadapter.updateData(RockApplication.getSjResultsFromEjTitle(results,title));
+                if (title != null) {
+                    sjadapter.updateData(RockApplication.getSjResultsFromEjTitle(results, title));
                 }
             }
         });
-
-    }
-
-    public void updateResultsView(List<Classifier.Recognition> results) {
-        ejadapter.updateData(RockApplication.getErjResults(results));
-        sjadapter.updateData(results);
     }
 
     protected synchronized void runInBackground(final Runnable r) {
@@ -208,35 +217,37 @@ public class MainFragment extends Fragment {
         super.onSaveInstanceState(outState);
     }
 
-    /*@Override
+    @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString() + " must implement OnFragmentInteractionListener");
-        }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
     }
 
-    *//**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     *//*
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
-    }*/
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        switch (resultCode) {
+            case -1:
+                if(requestCode==1){
+                    //Toast.makeText(getContext(),"onActivityResult1",Toast.LENGTH_SHORT).show();
+                    final Uri uri = data.getData();
+                    //imageChanged(uri);
+                    imageView.setImageURI(uri);
+                    //Toast.makeText(getContext(),"onActivityResult2",Toast.LENGTH_SHORT).show();
+                    Message msg = Message.obtain();
+                    msg.arg1 = 1;
+                    msg.obj = uri;
+                    resultUiHandler.sendMessage(msg);
+                }
+                break;
+            default:
+                break;
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
 
 }

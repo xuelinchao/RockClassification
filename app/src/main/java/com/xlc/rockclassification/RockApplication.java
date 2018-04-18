@@ -48,6 +48,8 @@ public class RockApplication extends Application{
 
     public static List<Classifier.Recognition> getSjResultsFromEjTitle(final List<Classifier.Recognition> results, final String title){
         List<Classifier.Recognition> sjResults = new ArrayList<>();
+        if(results==null||results.size()<=0)
+            return sjResults;
         for(Classifier.Recognition recognition:results){
             if(recognition.getTitle().split("-")[0].equals(title)){
                 sjResults.add(recognition);
@@ -59,6 +61,8 @@ public class RockApplication extends Application{
     public static List<Classifier.Recognition> getErjResults(List<Classifier.Recognition> sjresults) {
         Log.i("sjtitle", sjresults.size()+ ":" + sjresults);
         List<Classifier.Recognition> ejresults = new ArrayList<>();
+        if(sjresults==null||sjresults.size()<=0)
+            return ejresults;
         HashMap<String, Float> resultsmap = new HashMap();
         for (Classifier.Recognition recognition : sjresults) {
             String title = recognition.getTitle().split("-")[0];

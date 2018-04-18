@@ -3,4 +3,12 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+    
+    <color name="divide">#ffffff</color>
+
+    <color name="shape_solid">#ecebeb</color>
+    <color name="shape_stroke">#dedede</color>
+    
+    <color name="float_button_norm">#3F51B5</color>
+    <color name="float_button_pressed">#303F9F</color>
 </resources>

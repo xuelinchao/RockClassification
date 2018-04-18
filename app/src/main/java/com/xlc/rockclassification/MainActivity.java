@@ -71,14 +71,14 @@ public class MainActivity extends AppCompatActivity{
         });
 
         //禁止滑动
-        viewPager.setOnTouchListener(new View.OnTouchListener(){
+        /*viewPager.setOnTouchListener(new View.OnTouchListener(){
 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 return true;
             }
-        });
-
+        });*/
+        viewPager.setOffscreenPageLimit(3);
         setupViewpager(viewPager);
 
     }

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">RockClassification</string>
+    <string name="app_name">岩石分类</string>
     <string name="title_home">主页</string>
     <string name="title_notebook">手册</string>
     <string name="title_notifications">通知</string>
