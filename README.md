@@ -10,6 +10,6 @@
 1. 对选择的图片可以进行手动随意选择任意大小的区域进行识别
 2. 对相机的实时识别模块加入取景框，取景框可以通过手指进行放大缩小，并对取景框内的图像进行识别
 
-![从系统相册选择图片识别](https://github.com/xuelinchao/RockClassification/raw/master/Screenshots/main_fragment.png)
+![从系统相册选择图片识别](https://github.com/xuelinchao/RockClassification/blob/master/Screenshots/main_fragment.png)
 
-![自定义相机实时识别](https://github.com/xuelinchao/RockClassification/raw/master/Screenshots/classifier_activity.png)
+![自定义相机实时识别](https://github.com/xuelinchao/RockClassification/blob/master/Screenshots/classifier_activity.png)
