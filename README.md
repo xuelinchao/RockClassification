@@ -13,3 +13,4 @@
 ![从系统相册选择图片识别](https://github.com/xuelinchao/RockClassification/blob/master/Screenshots/main_fragment_small.png)
 
 ![自定义相机实时识别](https://github.com/xuelinchao/RockClassification/blob/master/Screenshots/classifier_activity_small.png)
+
